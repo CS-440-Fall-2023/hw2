@@ -48,7 +48,7 @@ Two submissions will be shared with you for review which you will evaluate accor
 
 This is an __individual submission__ on LMS and contributes to your individual __Review Factor__ which is 1 by default and penalized for non-submission.
 
-Deadline: 2359h on Tue, 4 Oct
+Deadline: 2359h on Mon, 3 Oct
 
 # Grading
 
