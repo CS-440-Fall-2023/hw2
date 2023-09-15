@@ -1,5 +1,6 @@
 \documentclass[addpoints]{exam}
 
+\usepackage{comment}
 \usepackage{graphbox}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -12,28 +13,50 @@
 \pagestyle{headandfoot}
 \runningheadrule
 \runningfootrule
-\runningheader{CS 440}{HW 2: Interactive WebGL}{Fall 2022}
+\runningheader{CS 440}{HW 2: Interactive WebGL}{Fall 2023}
 \runningfooter{}{Page \thepage\ of \numpages}{}
 \firstpageheader{}{}{}
 
-% \qformat{{\large\bf \thequestion. \thequestiontitle}\hfill[\totalpoints\ points]}
-\qformat{{\large\bf \thequestion. \thequestiontitle}\hfill}
+\qformat{{\large\bf \thequestion. \thequestiontitle}\hfill[\totalpoints\ points]}
+% \qformat{{\large\bf \thequestion. \thequestiontitle}\hfill}
 \boxedpoints
 
 \graphicspath{{images/}}
 
-\title{Homework 2: Interactive Rendering with WebGL}
+\title{Homework 2: Rendering with WebGL}
 \author{CS 440 Computer Graphics\\Habib University}
-\date{Fall 2022}
+\date{Fall 2023}
 
 \begin{document}
 \maketitle
 
 Each problem below specifies the names of the files that you have to submit for it. Please make sure that your submitted files have the indicated names. Any files in your GitHub repository with these names at the time of the deadline will be considered your submission. Many of the problems refer to the {\tt map\_point} function from the previous homework.
 
-We will use the utility files from \href{https://bit.ly/3Bqt8XG}{the website} of the newer edition of the textbook. Specifically, we will make use of the files containing ``ES6" in their names. These supersede similarly named files in the folder in that they are compliant with recent JavaScript (JS) standards which deprecate older features that are, in some cases, now considered insecure. You may copy the files \texttt{MVES6.js} and \texttt{initShadersES6.js} to your repository and include the local files in your HTML or include the files over the web.
+We will use the utility files from \href{https://bit.ly/3Bqt8XG}{the website} of the newer edition of the textbook. Specifically, we will make use of the files containing ``ES6" in their names. These supersede similarly named files in the folder in that they are compliant with recent JavaScript (JS) standards which deprecate older features that are, in some cases, now considered insecure. In your HTML files, you may include the files, \texttt{MVES6.js} and \texttt{initShadersES6.js}, over the web, or you may include local copies.
 
 GLSL has some helpful syntax and types to support geometric computation. You can read about them in the GLSL section toward the bottom of \href{https://webgl2fundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html}{this page}.
+
+\titledquestion{Essentials}
+  \begin{parts}
+  \part Go over \href{https://webgl2fundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#uniforms}{this page} for a quick recap on WebGL2 Shaders and GLSL. You may skip the sections on, ``Textures in Vertex Shaders''. and , ``Textures in Fragment Shaders''.
+  \part Go over the page ``Including shaders from external files'' under the HW 2 module on Canvas. Make sure to understand and follow the instructions.
+  \end{parts}
+  
+
+
+\begin{comment}
+  \begin{itemize}
+  \item Make colorabrs in different ways. Explain we will do it in many ways before ultimately doing it the right way.
+    \begin{itemize}
+    \item pass canvas width, W, as a uniform
+    \item draw W vertical lines. (2W vertices) assign colors in verex shader, with menu choice for grayscale or colors
+    \item make 2 triangles, do not send color, rather compute color for each fragment in fragment shader based on fragCoord
+    \item make 2 triangles, assign color to vertices
+    \item use above approach to render the colorbar with 6 or fewer vertices,
+    \item [stretch] Draw both bars together using the above technique, either in different viewports in the same canvas, or on different canva on the same page.
+    \end{itemize}
+  \end{itemize}
+\end{comment}
 
 \begin{questions}
 
