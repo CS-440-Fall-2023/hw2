@@ -30,19 +30,9 @@
 \begin{document}
 \maketitle
 
-Each problem below specifies the names of the files that you have to submit for it. Please make sure that your submitted files have the indicated names. Any files in your GitHub repository with these names at the time of the deadline will be considered your submission. Many of the problems refer to the {\tt map\_point} function from the previous homework.
+Each problem below specifies the names of the files that you have to submit for it. Please make sure that your submitted files have the indicated names. Any files in your GitHub repository with these names at the time of the deadline will be considered your submission. A required file with a \texttt{.glsl} extension may be replaced with a file of the same name with a \texttt{.c} extension. Some of the problems refer to the {\tt map\_point} function from the previous homework.
 
 We will use the utility files from \href{https://bit.ly/3Bqt8XG}{the website} of the newer edition of the textbook. Specifically, we will make use of the files containing ``ES6" in their names. These supersede similarly named files in the folder in that they are compliant with recent JavaScript (JS) standards which deprecate older features that are, in some cases, now considered insecure. In your HTML files, you may include the files, \texttt{MVES6.js} and \texttt{initShadersES6.js}, over the web, or you may include local copies.
-
-GLSL has some helpful syntax and types to support geometric computation. You can read about them in the GLSL section toward the bottom of \href{https://webgl2fundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html}{this page}.
-
-\titledquestion{Essentials}
-  \begin{parts}
-  \part Go over \href{https://webgl2fundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#uniforms}{this page} for a quick recap on WebGL2 Shaders and GLSL. You may skip the sections on, ``Textures in Vertex Shaders''. and , ``Textures in Fragment Shaders''.
-  \part Go over the page ``Including shaders from external files'' under the HW 2 module on Canvas. Make sure to understand and follow the instructions.
-  \end{parts}
-  
-
 
 \begin{comment}
   \begin{itemize}
@@ -60,7 +50,14 @@ GLSL has some helpful syntax and types to support geometric computation. You can
 
 \begin{questions}
 
-\titledquestion{Color Interpolation}[20]
+\titledquestion{Essentials}
+  \label{q:bars}
+  \begin{parts}
+  \part Go over \href{https://webgl2fundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#uniforms}{this page} for a quick recap on WebGL2 Shaders and GLSL. On the page, you may skip the sections titled, ``Textures in Vertex Shaders'', and, ``Textures in Fragment Shaders''.
+  \part Go over the page ``Including shaders from external files'' under the \texttt{HW 2} module on Canvas. Make sure to understand and follow the instructions. All the problems in this homework will follow the format described on the page.
+  \end{parts}
+
+\titledquestion{Color Interpolation}
   \label{q:colorbar}.
   
   \vspace{-30pt}
@@ -68,20 +65,29 @@ GLSL has some helpful syntax and types to support geometric computation. You can
     \includegraphics[width=\linewidth]{barbw}\\
     \vspace{-75pt}\includegraphics[width=\linewidth]{barrgb}
   \end{center}
-  \vspace{-50pt}\underline{Problem}: When drawing the \href{https://homepages.abdn.ac.uk/j.s.reid/pages/Maxwell/Legacy/MaxTri.html}{Maxwell triangle} in the recitation, we relied on the GPU's native color interpolation. We will now interpolate colors ourselves using {\tt map\_point}.
-
-  \underline{Task}:
+  \vspace{-50pt}
+  Recall the colorbars from the previous homework. We will draw them using different methods in order to illustrate various WebGL functionality. For each part below, your render should occupy the entirety of the \texttt{canvas} (you may draw a border around the canvas to highlight its boundary), the \texttt{canvas} should be adequately sized, and your rendered colorbar should appear smooth as shown above.
   \begin{parts}
-  \part Display the colorbars above in your display window with the grayscale bar above the color bar. Each bar is comprised of vertical lines rendered next to each other, i.e. on adjacent pixels, in the display window. Both bars have the same dimensions. The width has to be sufficiently large to include every color in the following RGB ranges.
-    \begin{itemize}
-    \item (0,0,0) to (255, 255, 255), and
-    \item (255,0,0) to (0, 255, 0) to (0, 0, 255).
-    \end{itemize}
-  \part Include mechanisms on your page to interactively change the colors that the bars interpolate between. The colorbars should update in response to changing the colors.
+  \part[5]\label{p:lines} Draw the grayscale colorbar by drawing a colored vertical line for each column in the \texttt{canvas}. In your JS file, compute and assign colors to the endpoints of the lines. Use your \texttt{map\_point} function from the previous homework to compute vertex coordinates and colors across the canvas.  \\
+    \underline{Tip}: It will be helpful to define the \texttt{start} and \texttt{end} values to iterate over the canvas. Use these for iteration and for \texttt{map\_point}.\\
+    \underline{Note}: If your colorbar renders with some vertical bands of the background color, adjust the \texttt{start} and \texttt{end} limits until the bands disappear.\\
+  \underline{Files}: 2a.html, 2a.js, 2a-vshader.glsl, 2a-fshader.glsl
+\part[5]\label{p:fcoord} The above method is tedious. In order to compute a number of lines in the order of the width of the canvas, you have to compute and transfer twice as many vertices and colors. In this part, we will draw the same colorbar by drawing two triangles using \texttt{gl.TRIANGLE\_STRIP}. Define 4 vertices with appropriate coordinates. Assign color in the fragment shader to each fragment based on its \texttt{gl\_FragCoord} and the canvas width. \texttt{gl\_FragCoord.xy} are the fragment's 2D coordinates in the canvas. Here, you only require \texttt{gl\_FragCoord.x}. You also need to prove the canvas width to your fragment shader. Do so by sending it from your JS program as a \texttt{uniform} value.\\
+  \underline{Files}: 2b.html, 2b.js, 2b-vshader.glsl, 2b-fshader.glsl
+\part[5] The approach in part \ref{p:fcoord} is arguably more intensive than the one in part \ref{p:lines}. You have to assign color to many more fragments in part \ref{p:fcoord} than vertices in part \ref{p:lines}. But there are several advantages.
+  \begin{itemize}
+  \item Unlike the vertices which you computed in \ref{p:lines}, the fragments are automatically computed by the pipeline.
+  \item You have to write much less code to assign color to the fragments.
+  \item The fragment shaders execute in parallel on the GPU whereas the JS code executes serially on the CPU.
+  \end{itemize}
+  Generally, we want to offload as much work to the pipeline as possible. In this part, we send the same 4 vertices to the GPU and their colors. With this approach, we do not even have to compute the color in the fragment shader. The pipeline computes the color for us. This is the best approach!\\
+  \underline{Files}: 2c.html, 2c.js, 2c-vshader.glsl, 2c-fshader.glsl
+\part[5] Using the same approach as the previous part, draw the RGB colorbar using 6 vertices and \texttt{gl.TRIANGLE\_FAN}.\\
+  \underline{Files}: 2d.html, 2d.js, 2d-vshader.glsl, 2d-fshader.glsl
   \end{parts}
-  \underline{Files}: colorbar.html, colorbar.js
 
-\titledquestion{The Mandelbrot Set}[15]
+
+\titledquestion{The Mandelbrot Set}
 
   The sequence $z_n$ for a complex number, $c$, is defined for $n\geq 0$ as
   \[
@@ -110,7 +116,7 @@ GLSL has some helpful syntax and types to support geometric computation. You can
   \end{enumerate}
   Condition 1 implies that every $c\in M$ lies within the circle in the complex plane centered at the origin and with radius 2. The value of $n$ for which condition 2 becomes false for a given $c$ is dubbed the {\it escape time} of $c$.
 
-  \underline{Example}: Consider the complex numbers and the corresponding sequence for each up to $z_5$ in Table \ref{tab:mandelbrot}.
+  \underline{Example}: Consider the complex numbers and their corresponding sequences up to $z_5$ in Table \ref{tab:mandelbrot}.
   \begin{table}
   \[
     \begin{array}{c|*{4}{|c}}
@@ -129,7 +135,7 @@ GLSL has some helpful syntax and types to support geometric computation. You can
       |z_5(c)| &  &  & 3.55 & 0.18\\\hline
     \end{array}
   \]
-  \caption{Examples of $z(n), 0\leq n\leq 5$ for some values of $c$. The magnitude of each value of $z(n)$ is also shown.}
+  \caption{Examples of $z(n), 0\leq n\leq 5$ for some values of $c$. The magnitude of each value of $z(n)$ is shown until it escapes.}
   \label{tab:mandelbrot}
 \end{table}
 \begin{itemize}
@@ -140,7 +146,7 @@ GLSL has some helpful syntax and types to support geometric computation. You can
   \item The fourth number is also inside the circle and has not escaped until n=5. It may escape later or it may not. We cannot say.
   \end{itemize}
   
-  \underline{Problem}: We want to visualize the Mandelbrot set up to a certain value of $n=n_t$ in an image. We will map to our viewport the circle in the complex plane which is centered at the origin and has a radius of 2. This will yield the complex number corresponding to each pixel in the view port. We will color each pixel according to the escape time of its corresponding complex number. In Figure \ref{fig:mandelbrot}, complex numbers that escape early are assigned red and those that have not escaped till $n=n_t$ are assigned blue. Complex numbers with intermediate escape values are assigned interpolated colors.
+  We want to render the Mandelbrot set up to a certain value of $n=n_t$. We map to our viewport, the portion of the complex plane in which the ranges of the real and imaginary axes are $[-2,2]$ and $[-2j,2j]$ respectively. Thus, each pixel in the viewport maps to a complex number. We will color each pixel according to the escape time of its corresponding complex number. In Figure \ref{fig:mandelbrot}, complex numbers that escape early are assigned red and those that have not escaped till $n=n_t$ are assigned blue. Complex numbers with intermediate escape values are assigned interpolated colors.
 
   Various steps are involved.
   \begin{enumerate}
@@ -150,35 +156,36 @@ GLSL has some helpful syntax and types to support geometric computation. You can
   \item Compute a color for a given escape time.
   \end{enumerate}
 
-  \underline{Task}:
   \begin{parts}
-  \part Visualize the Mandelbrot set as described above with $n_t$ defined as a global variable at the beginning of your JS file. You will find that a simple linear interpolation between the colors for $n=1$ and $n=n_t$ will lead to a bland visualization as seen in Figure \ref{fig:mandelbrot}a). You are encouraged to think about and implement a more discriminating color scheme for the escape times. You may implement any coloring scheme that sufficiently distinguishes between different escape times.
-  \part Include a mechanism on your page, e.g. a slider, to control the value of $n_t$ within a reasonable range. The render should update in response to changes in the value.
+  \part[10] Visualize the Mandelbrot set by assigning colors in the fragment shader, similar to Q\ref{q:bars}\ref{p:fcoord}). You may specify a value for $n_t$, e.g., $20$ in the vertex shader.\\
+    \underline{Tips}:
+    \begin{itemize}
+    \item Write and use relevant functions in the fragment shader file to perform arithmetic on complex numbers.
+    \item Write and use a version of the \texttt{map\_point} function in the fragment shader file.
+    \item Use \texttt{uniform} to pass the \texttt{canvas} dimensions to the fragment shader.
+    \item You will find that a simple linear interpolation between the colors for $n=1$ and $n=n_t$ will lead to a bland visualization as seen in Figure \ref{fig:mandelbrot}a). Implement a more discriminating color scheme for the escape times. You may implement any coloring scheme that sufficiently distinguishes between different escape times.
+    \end{itemize}
+    
+  \part[10] Include a mechanism on your page, e.g. a slider, to control the value of $n_t$ within a reasonable range. The render should update in response to changes in the value.\\
   \end{parts}
-  \underline{Tips and Notes}:\\
-  --\ As you may imagine, this computation can be expensive. Pick a range for $n_t$ that is feasible for your machine and leads to an interesting visualization.\\
-  --\ Make liberal use of \texttt{map\_point}. Points 1, 2, and 4 above lend themselves simply to its use.\\
-  --\ You are encouraged to use the \texttt{Complex} type from \texttt{math.js}. See its usage \href{https://mathjs.org/docs/datatypes/complex_numbers.html}{here}. To use it in your JS code, include the following line in your HTML file.\\
-  \verb|<script src="https://unpkg.com/mathjs@9.5.0/lib/browser/math.js"></script>|
+  \underline{Files}: mandelbrot.html, mandelbrot.js, mandelbrot-vshader.glsl, mandelbrot-fshader.glsl
 
-  \underline{Files}: mandelbrot-cpu.html, mandelbrot-cpu.js
-
-  \titledquestion{Boundary and Interior}[15]
+  \titledquestion{Boundary and Interior}[10]
 
     \underline{Problem}: We are going to render a triangle along with its boundary edges. The triangle and its edges are colored independently.
     
     \underline{Task}: Render the (filled) triangle and its boundary as described above and include in your page, interactive controls for the following.
   \begin{itemize}
-  \item Set the RGB colors of the boundary vertices.
-  \item Set the RGB colors of the triangle (interior) vertices.
+  \item Set the RGB colors of each of the boundary vertices.
+  \item Set the RGB colors of each of the triangle (interior) vertices.
   \item Toggle the display of the boundary.
   \item Toggle the display of the triangle (the interior).
-  \item Assign a random color to the boundary vertices.
-  \item Assign a random color to the triangle vertices.
+  \item Assign random colors to all of the boundary vertices.
+  \item Assign random colors to all of the triangle vertices.
   \end{itemize}
-  \underline{Files}: colors.html, colors.js
+  \underline{Files}: colors.html, colors.js, colors-vshader.glsl, colors-fshader.glsl
   
-  \titledquestion{Subdivision: $\lim\limits_{n\rightarrow\infty} \diamond = \circ$}[20]
+  \titledquestion{Subdivision: $\lim\limits_{n\rightarrow\infty} \diamond = \circ$}
   \begin{center}
     \includegraphics[width=\linewidth]{circle}
   \end{center}
@@ -198,28 +205,27 @@ GLSL has some helpful syntax and types to support geometric computation. You can
         \draw [red] (a) -- (b);
         \draw [dotted] (c) -- (p);
         \draw [dotted] (p) -- (q);
-        \draw [dotted] (a) -- (q);
-        \draw [dotted] (b) -- (q);
+        \draw [red, dashed] (a) -- (q);
+        \draw [red, dashed] (b) -- (q);
       \end{tikzpicture}
     }
     &
-      \underline{Problem}: For rendering purposes, a computer approximates a smooth shape with a many-sided polygon. We will approximate a circle with a successively refined diamond shape shown on the left in the figure above. Each successive shape in the figure is a refinement or \textit{subdivision} of the previous shape. The subdivision step inserts edge midpoints into the shape and projects them to the circumference of the circle being approximated. This is illustrated in the figure on the left. The red line approximates the blue arc. In the subdivision step, the midpoint of the red line is inserted and projected to the arc. The red line is then replaced with the dotted black lines.
+      \underline{Problem}: For rendering purposes, a computer approximates a smooth shape with a many-sided polygon. We will approximate a circle with a successively refined diamond shape shown on the left in the figure above. Each successive shape in the figure is a refinement or \textit{subdivision} of the previous shape. The subdivision step inserts edge midpoints into the shape and projects them to the circumference of the circle being approximated. This is illustrated in the figure on the left. The red solid line approximates the blue arc. In the subdivision step, the midpoint of the solid line is inserted and projected to the arc. The red solid line is then replaced with the red dashed lines.
   \end{tabularx}
 
     \underline{Task}:
     \begin{parts}
-    \part Render a subdivided version of the diamond shown above.
-    \part Include a mechanism to interactively alter the number of subdivision steps. The diamond corresponds to 0 steps, and each successive shape in the figure above represents one further subdivision.
+    \part[5] Render the level 0 circle (0 subdivisions). This is the diamond shown above.
+    \part[10] Include a mechanism to interactively increase or decrease the number of subdivision steps. The render should update interactively according to the change in recursion level.
     \end{parts}
-    \underline{Files}: circle.html, circle.js
-
+    \underline{Files}: circle.html, circle.js, circle-vshader.glsl, circle-fshader.glsl
   
   \titledquestion{Koch Snowflake}
 
 \begin{tabularx}{1.0\linewidth}{cX}
     \includegraphics[width=.3\textwidth,align=t]{koch1}
   &
-    \vspace{10pt} \underline{Problem}: We will render a \href{https://en.wikipedia.org/wiki/Koch_snowflake}{Koch snowflake} which is a \href{http://mathworld.wolfram.com/Fractal.html}{fractal} generated by repeatedly applying a fixed transformation to all line segments. The figure on the left shows the starting shape on the top left and, proceeding left-to-right top-to-bottom, the result of successive applications of the transformation which is illustrated below.
+    \vspace{10pt} \underline{Problem}: We will render a \href{https://en.wikipedia.org/wiki/Koch_snowflake}{Koch snowflake} which is a \href{http://mathworld.wolfram.com/Fractal.html}{fractal} generated by repeatedly applying a fixed transformation to all line segments. The figure on the left shows the starting shape on the top left and, proceeding clockwise, the results of successive applications of the transformation which is illustrated below.
     
     {\begin{tabularx}{0.63\textwidth}{cX}
     \includegraphics[scale=.7,align=t]{koch2}
@@ -229,14 +235,12 @@ GLSL has some helpful syntax and types to support geometric computation. You can
 
 \underline{Task}:
 \begin{parts}
-\part Render the Koch snowflake at a desired recursion level.
-\part Include a mechanism on your page to interactively alter the recursion level. The render should update according to the change in recursion level.
+    \part[5] Render the level 0 snowflake (0 recursive steps). This is the triangle shown above.
+    \part[10] Include a mechanism to interactively increase or decrease the number of recursive steps applied to the Level 0 shape. The render should update interactively according to the change in recursion level.
 \end{parts}
-    \underline{Files}: koch.html, koch.js
-    
-
+    \underline{Files}: koch.html, koch.js, koch-vshader.glsl, koch-fshader.glsl
   
-  \titledquestion{Sierpinski Triangle}[20]
+  \titledquestion{Sierpinski Triangle}
   
   \begin{figure}
     \centering
@@ -258,37 +262,19 @@ GLSL has some helpful syntax and types to support geometric computation. You can
     \label{fig:sierpinski}
   \end{figure}
   
-\underline{Problem}: We will render the \href{https://en.wikipedia.org/wiki/Sierpinski_triangle}{Sierpinski triangle}, a \href{https://en.wikipedia.org/wiki/Self-similarity}{self-similar} geometric shape with many interesting properties, not the least of which is the variety of ways in which it can be generated. A sample triangle is shown in Figure \ref{fig:sierpinski}a).
+\underline{Problem}: We will render the \href{https://en.wikipedia.org/wiki/Sierpinski_triangle}{Sierpinski triangle}, a \href{https://en.wikipedia.org/wiki/Self-similarity}{self-similar} geometric shape with many interesting properties, not the least of which is the variety of ways in which it can be generated. A sample Sierpinski triangle is shown in Figure \ref{fig:sierpinski}a).
 
 We will generate the Sierpinski triangle recursively as illustrated in Figure \ref{fig:sierpinski}b). Starting with a triangle, connect all its edge midpoints. This yields 4 new triangles. Repeat the process for all the new triangles shown with a dot in them. Do not subdivide the triangle in the middle (without a dot). Note that the dots in the figure are for demonstration purposes only--they are not part of the Sierpinski triangle.
 
 \underline{Task}:
 \begin{parts}
-\part Render the Sierpinski triangle as described above at any desired recursion level.\\
-\part Include a mechanism on your page to interactively alter the recursion level. The render should update according to the change in recursion level.
+\part[5] Render the level 0 Sierpinski triangle (0 recursive steps). This is just a triangle.
+\part[10] Include a mechanism to interactively increase or decrease the number of recursive steps applied to the Level 0 shape. The render should update interactively according to the change in recursion level.
 \end{parts}
-  \underline{Files}: sierpinski.html, sierpinski.js
+  \underline{Files}: sierpinski.html, sierpinski.js, sierpinski-vshader.glsl, sierpinski-fshader.glsl
 
 
-  
-\titledquestion{Mandelbrot on Shaders}[15]
-  \underline{Problem}: We want to visualize the MAndelbrot set as before but perform color computation in the fragment shader, i.e. on the GPU, as opposed to the JS file, i.e. the CPU. As the calculation at each pixel of the visualization is completely independent of the other pixels, this task is perfectly suited for the fragment shader.
-
-  There are several issues to tackle here.
-  \begin{itemize}
-  \item What data needs to be passed to the fragment shader: what information does the fragment shader need in order to compute the color.
-  \item What data needs to be passed to the vertex shader: our program does not talk to the fragment shader, rather it can pass data to the vertex shader which can then pass data to the fragment shader.
-  \item What attributes need to be passed to the vertex shader: the vertex shader runs once per vertex but vertices define a polygon which rasterizes to numerous pixels and the fragment shader runs for each pixel. The attributes passed to the vertex shader must be such that each rasterized pixel obtains a version of the data that is right for it.
-  \item Many others.
-  \end{itemize}
-  Thinking about and finding solutions to these sub-problems is an intended part of this problem.
-  
-  \underline{Task}: Visualize the Mandelbrot set as in the earlier question but perform the color computation on the GPU.
-  
-  \underline{Files}: \texttt{mandelbrot-gpu.html, mandelbrot-gpu.js}
-
-  
-\titledquestion{Polygons Galore}[15]
+\titledquestion{Polygons Galore}
   \label{q:galore}
   
   \begin{tabularx}{\linewidth}{lX}
@@ -296,35 +282,14 @@ We will generate the Sierpinski triangle recursively as illustrated in Figure \r
     &
       \vspace{20pt} \underline{Task}: We love polygons and cannot get enough of them. We will draw a limited set of polygons whose vertices are specified by the user through mouse clicks and are connected as per the current \textit{drawing mode}. For example, if \textit{triangle mode} is on, every 3 successive vertices will be connected to form a triangle.
   \end{tabularx}
-  
-  \underline{Task}: Interactively draw triangles and quadrilaterals based on vertices specified by mouse clicks in the canvas. Your program should support two drawing modes--triangle mode (default) and quad mode. Vertices that are not yet part of a polygon are drawn as points. Each drawn shape is assigned a different random color. Furthermore, the following interaction is supported.
+
+  \underline{Task}: 
   \begin{parts}
-  \part Pressing \texttt{r} or \texttt{R} resets to default. That is, the canvas is cleared and the drawing mode is set to triangle mode.
-  \part Pressing \texttt{t} or \texttt{T} toggles between the drawing modes. Vertices that have not yet completed a polygon at the time of the toggle should be handled according to the new mode, they should not be discarded. Polygons drawn before the toggle should not be affected.
+  \part[5] Interactively draw triangles and quadrilaterals based on vertices specified by mouse clicks in the canvas. Your program should support two drawing modes--triangle mode (default) and quad mode. Vertices that are not yet part of a polygon are drawn as points.
+  \part[5] Pressing \texttt{r} or \texttt{R} resets to default. That is, the canvas is cleared and the drawing mode is set to triangle mode.
+  \part[10] Pressing \texttt{t} or \texttt{T} toggles between the drawing modes. Vertices that have not yet completed a polygon at the time of the toggle should be handled according to the new mode, they should not be discarded. Polygons drawn before the toggle should not be affected.
   \end{parts}
-  \underline{Files}: {\tt galore.html, galore.js}
-
-\titledquestion{Tetrix}[15]
-
-  \begin{tabular}{ccc}
-    \includegraphics[width=.3\textwidth]{tetrix1}
-    & \includegraphics[width=.3\textwidth]{tetrix2}
-    & \includegraphics[width=.3\textwidth]{tetrix3}
-  \end{tabular}
-
-  \underline{Problem}: We will render a \href{http://mathworld.wolfram.com/Tetrix.html}{\it tetrix} which is the 3D version of the Sierpinski triangle and is also referred to as the \textit{Sierpinski tetrahedron}. Widgets on the page will control the rotation of the tetrix.
-
-  When the visualization loads, the tetrix is rotating continuously about an arbitrary axis--$x, y,$ or $z$. 
-
-  \underline{Task}:
-  \begin{parts}
-  \part Render the tetrix at any desired recursion level and rotating continuously about any axis.\\
-  \part Include a mechanism on your page to interactively alter the recursion level. The rotation should remain unaffected. A recursion level of 0 corresponds to a completely filled tetrahedron. The left-most tetrix in the figure corresponds to a recursion level of 1.\\
-  \part Include a mechanism on your page to interactively freeze and resume rotation.
-  \part Include a mechanism on your page to interactively reset the tetrix to a default position.
-  \part Include a mechanism on your page to interactively change the axis of rotation. 
-  \end{parts}
-  \underline{Files}: {\tt tetrix.html, tetrix.js}
+  \underline{Files}: galore.html, galore.js, galore-vshader.glsl, galore-fshader.glsl
 
 \end{questions}
 
@@ -334,3 +299,6 @@ We will generate the Sierpinski triangle recursively as illustrated in Figure \r
 %%% mode: latex
 %%% TeX-master: t
 %%% End:
+
+
+Thanks, Asif, for the invitation. Adam's classmate, Zoha, is the wrong gender for this :) The brother, Musa, is 2 years younger so is hesitant to join as he will not know the people. Both of them are anyway into football and have classes 3 days a week including Saturday. Also, we are not as early risers as you :) My wife, Mifrah, tells that your family always gets stuff done early int he day. Unfortunately, our family is full of late rising sleepyheads! So, if start a football league which meets slightly later in the day, we will be very happy to join. Again, thank you very much for the invitation. I hope Adam has a lot of fun!
