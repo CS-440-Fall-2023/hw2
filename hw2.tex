@@ -283,12 +283,14 @@ We will generate the Sierpinski triangle recursively as illustrated in Figure \r
       \vspace{20pt} \underline{Task}: We love polygons and cannot get enough of them. We will draw a limited set of polygons whose vertices are specified by the user through mouse clicks and are connected as per the current \textit{drawing mode}. For example, if \textit{triangle mode} is on, every 3 successive vertices will be connected to form a triangle.
   \end{tabularx}
 
+  \vspace{-15pt}
   \underline{Task}: 
   \begin{parts}
-  \part[5] Interactively draw triangles and quadrilaterals based on vertices specified by mouse clicks in the canvas. Your program should support two drawing modes--triangle mode (default) and quad mode. Vertices that are not yet part of a polygon are drawn as points.
+  \part[5] Interactively draw triangles based on vertices specified by mouse clicks in the canvas. 
+  \part[10] Pressing \texttt{t} or \texttt{T} toggles between the drawing modes---triangle mode (default) and quad mode. Vertices that have not yet completed a polygon at the time of the toggle should be handled according to the new mode, they should not be discarded. Polygons drawn before the toggle should not be affected.
   \part[5] Pressing \texttt{r} or \texttt{R} resets to default. That is, the canvas is cleared and the drawing mode is set to triangle mode.
-  \part[10] Pressing \texttt{t} or \texttt{T} toggles between the drawing modes. Vertices that have not yet completed a polygon at the time of the toggle should be handled according to the new mode, they should not be discarded. Polygons drawn before the toggle should not be affected.
   \end{parts}
+  \vspace{-5pt}
   \underline{Files}: galore.html, galore.js, galore-vshader.glsl, galore-fshader.glsl
 
 \end{questions}
